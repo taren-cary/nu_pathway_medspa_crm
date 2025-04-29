@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
+import { format } from 'date-fns';
 import { supabase } from '../lib/supabase';
 
 function CustomersPage() {
@@ -29,85 +29,89 @@ function CustomersPage() {
   }, []);
   
   return (
-    <div>
-      <div className="sm:flex sm:items-center sm:justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Customers</h2>
+    <div className="animate-fade-in">
+      <div className="dashboard-header">
+        <h1 className="dashboard-title">Customers</h1>
+        
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <i className="ph ph-magnifying-glass text-neutral-400"></i>
+          </div>
+          <input
+            type="search"
+            className="block w-full pl-10 pr-3 py-2 border border-neutral-200 rounded-lg bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            placeholder="Search customers..."
+          />
+        </div>
       </div>
       
       {loading ? (
-        <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+        <div className="card animate-pulse">
+          <div className="space-y-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex space-x-4">
+                <div className="skeleton-text w-1/4 h-6"></div>
+                <div className="skeleton-text w-1/4 h-6"></div>
+                <div className="skeleton-text w-1/4 h-6"></div>
+                <div className="skeleton-text w-1/4 h-6"></div>
+              </div>
+            ))}
+          </div>
         </div>
       ) : customers.length === 0 ? (
-        <div className="bg-white shadow overflow-hidden sm:rounded-md p-6 text-center text-gray-500">
-          No customers found.
+        <div className="card text-center py-12">
+          <i className="ph ph-users-three text-5xl text-neutral-300 mb-4"></i>
+          <h3 className="text-xl font-medium text-neutral-600 mb-2">No customers found</h3>
+          <p className="text-neutral-500">Your customer list is empty.</p>
         </div>
       ) : (
-        <div className="flex flex-col">
-          <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-            <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-              <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Customer Name
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Phone Number
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Email
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        First Booking Date
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {customers.map((customer) => (
-                      <tr 
-                        key={customer.id} 
-                        className="hover:bg-gray-50 cursor-pointer"
-                        onClick={() => window.location.href = `/customers/${customer.id}`}
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-primary-100 text-primary-600">
-                              <span className="text-xl">👤</span>
-                            </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{customer.name}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{customer.phone}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{customer.email}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {format(new Date(customer.created_at), 'MMM d, yyyy')}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+        <div className="card overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="table-premium">
+              <thead>
+                <tr>
+                  <th className="table-header">Customer Name</th>
+                  <th className="table-header">Phone Number</th>
+                  <th className="table-header">Email</th>
+                  <th className="table-header">First Booking Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-200 bg-white">
+                {customers.map((customer) => (
+                  <tr 
+                    key={customer.id}
+                    className="hover:bg-neutral-50 transition-colors cursor-pointer"
+                  >
+                    <td className="table-cell font-medium text-primary-700">
+                      <Link to={`/customers/${customer.id}`} className="flex items-center">
+                        <div className="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center mr-3">
+                          {customer.name.charAt(0).toUpperCase()}
+                        </div>
+                        {customer.name}
+                      </Link>
+                    </td>
+                    <td className="table-cell">
+                      <div className="flex items-center">
+                        <i className="ph ph-phone text-neutral-400 mr-2"></i>
+                        {customer.phone}
+                      </div>
+                    </td>
+                    <td className="table-cell">
+                      <div className="flex items-center">
+                        <i className="ph ph-envelope text-neutral-400 mr-2"></i>
+                        {customer.email}
+                      </div>
+                    </td>
+                    <td className="table-cell">
+                      <div className="flex items-center">
+                        <i className="ph ph-calendar text-neutral-400 mr-2"></i>
+                        {format(new Date(customer.created_at), 'MMM d, yyyy')}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 function AppointmentsPage() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [timeFrame, setTimeFrame] = useState('today');
+  const [timeframe, setTimeframe] = useState('today');
   
   const fetchAppointments = async () => {
     setLoading(true);
@@ -13,17 +13,17 @@ function AppointmentsPage() {
     let timeRange = {};
     const now = new Date();
     
-    if (timeFrame === 'today') {
+    if (timeframe === 'today') {
       timeRange = {
         start: startOfDay(now).toISOString(),
         end: endOfDay(now).toISOString(),
       };
-    } else if (timeFrame === 'week') {
+    } else if (timeframe === 'week') {
       timeRange = {
         start: startOfWeek(now, { weekStartsOn: 1 }).toISOString(),
         end: endOfWeek(now, { weekStartsOn: 1 }).toISOString(),
       };
-    } else if (timeFrame === 'month') {
+    } else if (timeframe === 'month') {
       timeRange = {
         start: startOfMonth(now).toISOString(),
         end: endOfMonth(now).toISOString(),
@@ -76,134 +76,133 @@ function AppointmentsPage() {
     }, 30000);
     
     return () => clearInterval(interval);
-  }, [timeFrame]);
+  }, [timeframe]);
   
   const getStatusColor = (status) => {
     switch (status) {
       case 'Booked':
-        return 'bg-blue-100 text-blue-800';
+        return 'status-tag status-booked';
       case 'Completed':
-        return 'bg-green-100 text-green-800';
+        return 'status-tag status-completed';
       case 'Cancelled':
-        return 'bg-red-100 text-red-800';
+        return 'status-tag status-cancelled';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'status-tag bg-gray-100 text-gray-800';
     }
   };
   
+  const formatAppointmentTime = (timestamp) => {
+    return format(new Date(timestamp), 'MMM d, yyyy • h:mm a');
+  };
+  
   return (
-    <div>
-      <div className="sm:flex sm:items-center sm:justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Appointments</h2>
-        <div className="mt-3 sm:mt-0 sm:ml-4">
-          <div className="flex rounded-md shadow-sm">
-            <button
-              type="button"
-              onClick={() => setTimeFrame('today')}
-              className={`relative inline-flex items-center px-4 py-2 rounded-l-md border border-gray-300 text-sm font-medium ${
-                timeFrame === 'today'
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              Today
-            </button>
-            <button
-              type="button"
-              onClick={() => setTimeFrame('week')}
-              className={`relative inline-flex items-center px-4 py-2 border-t border-b border-gray-300 text-sm font-medium ${
-                timeFrame === 'week'
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              This Week
-            </button>
-            <button
-              type="button"
-              onClick={() => setTimeFrame('month')}
-              className={`relative inline-flex items-center px-4 py-2 rounded-r-md border border-gray-300 text-sm font-medium ${
-                timeFrame === 'month'
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              This Month
-            </button>
-          </div>
+    <div className="animate-fade-in">
+      <div className="dashboard-header">
+        <h1 className="dashboard-title">Appointments</h1>
+        
+        <div className="flex space-x-2 bg-white p-1 rounded-lg shadow-sm border border-neutral-200">
+          <button
+            onClick={() => setTimeframe('today')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              timeframe === 'today'
+                ? 'bg-primary-500 text-white'
+                : 'text-neutral-600 hover:bg-neutral-100'
+            }`}
+          >
+            Today
+          </button>
+          <button
+            onClick={() => setTimeframe('week')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              timeframe === 'week'
+                ? 'bg-primary-500 text-white'
+                : 'text-neutral-600 hover:bg-neutral-100'
+            }`}
+          >
+            This Week
+          </button>
+          <button
+            onClick={() => setTimeframe('month')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              timeframe === 'month'
+                ? 'bg-primary-500 text-white'
+                : 'text-neutral-600 hover:bg-neutral-100'
+            }`}
+          >
+            This Month
+          </button>
         </div>
       </div>
       
       {loading ? (
-        <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="card animate-pulse">
+              <div className="flex items-center space-x-4">
+                <div className="skeleton-circle"></div>
+                <div className="space-y-2 flex-1">
+                  <div className="skeleton-text w-1/2"></div>
+                  <div className="skeleton-text w-3/4"></div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       ) : appointments.length === 0 ? (
-        <div className="bg-white shadow overflow-hidden sm:rounded-md p-6 text-center text-gray-500">
-          No appointments found for this time period.
+        <div className="card text-center py-12">
+          <i className="ph ph-calendar-x text-5xl text-neutral-300 mb-4"></i>
+          <h3 className="text-xl font-medium text-neutral-600 mb-2">No appointments found</h3>
+          <p className="text-neutral-500">There are no appointments scheduled for this timeframe.</p>
         </div>
       ) : (
-        <div className="bg-white shadow overflow-hidden sm:rounded-md">
-          <ul className="divide-y divide-gray-200">
-            {appointments.map((appointment) => (
-              <li key={appointment.id}>
-                <div className="px-4 py-4 sm:px-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-primary-100 text-primary-600">
-                        <span className="text-xl">📆</span>
-                      </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-primary-600 truncate">
-                          {appointment.customers.name}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {appointment.service}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="ml-2 flex-shrink-0 flex">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(appointment.status)}`}>
-                        {appointment.status}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="mt-2 sm:flex sm:justify-between">
-                    <div className="sm:flex">
-                      <p className="flex items-center text-sm text-gray-500">
-                        <span className="truncate">{appointment.customers.phone}</span>
-                      </p>
-                      <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                        <span className="truncate">{appointment.customers.email}</span>
-                      </p>
-                    </div>
-                    <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                      <p>
-                        {format(new Date(appointment.appointment_time), 'MMM d, yyyy h:mm a')}
-                      </p>
-                    </div>
-                  </div>
-                  {appointment.notes && (
-                    <div className="mt-2">
-                      <p className="text-sm text-gray-500">
-                        <span className="font-medium">Notes:</span> {appointment.notes}
-                      </p>
-                    </div>
-                  )}
-                  {appointment.status === 'Booked' && (
-                    <div className="mt-3 flex justify-end">
-                      <button
-                        onClick={() => markAsCompleted(appointment.id)}
-                        className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                      >
-                        Mark as Completed
-                      </button>
-                    </div>
-                  )}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {appointments.map((appointment) => (
+            <div key={appointment.id} className="card-appointment animate-slide-up">
+              <div className="flex justify-between mb-3">
+                <div className="flex items-center">
+                  <i className="ph ph-calendar-check text-primary-500 text-lg mr-2"></i>
+                  <span className="text-sm font-medium text-neutral-500">
+                    {formatAppointmentTime(appointment.appointment_time)}
+                  </span>
                 </div>
-              </li>
-            ))}
-          </ul>
+                <span className={getStatusColor(appointment.status)}>
+                  {appointment.status === 'Booked' && <i className="ph ph-clock text-blue-700"></i>}
+                  {appointment.status === 'Completed' && <i className="ph ph-check-circle text-green-700"></i>}
+                  {appointment.status === 'Cancelled' && <i className="ph ph-x-circle text-red-700"></i>}
+                  {appointment.status}
+                </span>
+              </div>
+              
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-neutral-900 mb-1">
+                  {appointment.customers.name}
+                </h3>
+                <div className="flex items-center text-neutral-600 text-sm">
+                  <i className="ph ph-sparkle text-secondary-500 mr-1.5"></i>
+                  {appointment.service}
+                </div>
+              </div>
+              
+              {appointment.notes && (
+                <div className="bg-neutral-50 rounded-md p-3 text-sm text-neutral-600 border border-neutral-200">
+                  <i className="ph ph-note-pencil text-neutral-400 mr-1.5"></i>
+                  {appointment.notes}
+                </div>
+              )}
+              
+              {appointment.status === 'Booked' && (
+                <div className="mt-4 flex justify-end">
+                  <button 
+                    onClick={() => markAsCompleted(appointment.id)}
+                    className="btn-secondary text-sm py-1.5"
+                  >
+                    <i className="ph ph-check mr-1.5"></i>
+                    Mark as Completed
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>

@@ -4,34 +4,34 @@ function Layout() {
   const location = useLocation();
   
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
+    <div className="min-h-screen bg-neutral-50">
+      <nav className="nav-container">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
-            <div className="flex">
+            <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center">
-                <h1 className="text-xl font-bold text-primary-600">Nu Pathway MedSpa</h1>
+                <h1 className="text-xl font-display font-bold text-primary-600">Nu Pathway MedSpa</h1>
               </div>
-              <div className="ml-6 flex space-x-8">
+              <div className="ml-8 flex space-x-8">
                 <Link
                   to="/appointments"
-                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                  className={`nav-link ${
                     location.pathname === '/' || location.pathname === '/appointments'
-                      ? 'border-primary-500 text-gray-900'
-                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                      ? 'text-primary-600 after:w-full'
+                      : ''
                   }`}
                 >
-                  <span className="mr-2">📆</span> Appointments
+                  <i className="ph ph-calendar-blank mr-2"></i> Appointments
                 </Link>
                 <Link
                   to="/customers"
-                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                  className={`nav-link ${
                     location.pathname.includes('/customers')
-                      ? 'border-primary-500 text-gray-900'
-                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                      ? 'text-primary-600 after:w-full'
+                      : ''
                   }`}
                 >
-                  <span className="mr-2">👤</span> Customers
+                  <i className="ph ph-user mr-2"></i> Customers
                 </Link>
               </div>
             </div>
@@ -39,7 +39,7 @@ function Layout() {
         </div>
       </nav>
       
-      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+      <main className="dashboard-container">
         <Outlet />
       </main>
     </div>
