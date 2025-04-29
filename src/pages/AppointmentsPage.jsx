@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { supabase } from '../lib/supabase';
 
 function AppointmentsPage() {
@@ -92,7 +93,11 @@ function AppointmentsPage() {
   };
   
   const formatAppointmentTime = (timestamp) => {
-    return format(new Date(timestamp), 'MMM d, yyyy • h:mm a');
+    return formatInTimeZone(
+      new Date(timestamp),
+      'America/New_York',
+      'MMM d, yyyy • h:mm a'
+    );
   };
   
   return (

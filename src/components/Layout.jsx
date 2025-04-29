@@ -1,4 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
+import logo from '../assets/logo.svg';
 
 function Layout() {
   const location = useLocation();
@@ -10,6 +11,7 @@ function Layout() {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center">
+                <img src={logo} alt="Nu Pathway MedSpa Logo" className="h-10 w-auto mr-3" />
                 <h1 className="text-xl font-display font-bold text-primary-600">Nu Pathway MedSpa</h1>
               </div>
               <div className="ml-8 flex space-x-8">

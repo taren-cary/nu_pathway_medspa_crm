@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { supabase } from '../lib/supabase';
 
 function CustomersPage() {
@@ -27,6 +28,14 @@ function CustomersPage() {
   useEffect(() => {
     fetchCustomers();
   }, []);
+  
+  const formatDate = (timestamp) => {
+    return formatInTimeZone(
+      new Date(timestamp),
+      'America/New_York',
+      'MMM d, yyyy'
+    );
+  };
   
   return (
     <div className="animate-fade-in">
@@ -105,7 +114,7 @@ function CustomersPage() {
                     <td className="table-cell">
                       <div className="flex items-center">
                         <i className="ph ph-calendar text-neutral-400 mr-2"></i>
-                        {format(new Date(customer.created_at), 'MMM d, yyyy')}
+                        {formatDate(customer.created_at)}
                       </div>
                     </td>
                   </tr>

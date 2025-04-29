@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { supabase } from '../lib/supabase';
 
 function CustomerDetailPage() {
@@ -57,6 +58,22 @@ function CustomerDetailPage() {
       default:
         return 'status-tag bg-gray-100 text-gray-800';
     }
+  };
+  
+  const formatAppointmentTime = (timestamp) => {
+    return formatInTimeZone(
+      new Date(timestamp),
+      'America/New_York',
+      'h:mm a'
+    );
+  };
+  
+  const formatAppointmentDate = (timestamp) => {
+    return formatInTimeZone(
+      new Date(timestamp),
+      'America/New_York',
+      'MMMM d, yyyy'
+    );
   };
   
   if (loading) {
@@ -148,7 +165,7 @@ function CustomerDetailPage() {
                     <div className="flex items-center">
                       <i className="ph ph-calendar-check text-primary-500 mr-2"></i>
                       <span className="font-medium text-neutral-700">
-                        {format(new Date(appointment.appointment_time), 'MMMM d, yyyy')}
+                        {formatAppointmentDate(appointment.appointment_time)}
                       </span>
                     </div>
                     <span className={getStatusColor(appointment.status)}>
@@ -163,7 +180,7 @@ function CustomerDetailPage() {
                     <div className="flex items-center mb-3">
                       <i className="ph ph-clock text-neutral-400 mr-2"></i>
                       <span className="text-neutral-700">
-                        {format(new Date(appointment.appointment_time), 'h:mm a')}
+                        {formatAppointmentTime(appointment.appointment_time)}
                       </span>
                     </div>
                     
