@@ -1,8 +1,10 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
+import { useAuth } from './AuthProvider';
 import logo from '../assets/logo.svg';
 
 function Layout() {
   const location = useLocation();
+  const { signOut, user } = useAuth();
   
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -45,6 +47,18 @@ function Layout() {
                 >
                   <i className="ph ph-calendar-blank mr-2"></i> Appointments
                 </Link>
+              </div>
+            </div>
+            
+            <div className="flex items-center">
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-neutral-600">{user?.email}</span>
+                <button 
+                  onClick={signOut}
+                  className="text-sm text-neutral-600 hover:text-primary-600 flex items-center"
+                >
+                  <i className="ph ph-sign-out mr-1"></i> Logout
+                </button>
               </div>
             </div>
           </div>
