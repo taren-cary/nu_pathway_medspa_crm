@@ -16,24 +16,34 @@ function Layout() {
               </div>
               <div className="ml-8 flex space-x-8">
                 <Link
+                  to="/calls"
+                  className={`nav-link ${
+                    location.pathname === '/' || location.pathname === '/calls'
+                      ? 'text-primary-600 after:w-full'
+                      : ''
+                  }`}
+                >
+                  <i className="ph ph-phone mr-2"></i> Calls
+                </Link>
+                <Link
+                  to="/contacts"
+                  className={`nav-link ${
+                    location.pathname.includes('/contacts')
+                      ? 'text-primary-600 after:w-full'
+                      : ''
+                  }`}
+                >
+                  <i className="ph ph-user mr-2"></i> Contacts
+                </Link>
+                <Link
                   to="/appointments"
                   className={`nav-link ${
-                    location.pathname === '/' || location.pathname === '/appointments'
+                    location.pathname === '/appointments'
                       ? 'text-primary-600 after:w-full'
                       : ''
                   }`}
                 >
                   <i className="ph ph-calendar-blank mr-2"></i> Appointments
-                </Link>
-                <Link
-                  to="/customers"
-                  className={`nav-link ${
-                    location.pathname.includes('/customers')
-                      ? 'text-primary-600 after:w-full'
-                      : ''
-                  }`}
-                >
-                  <i className="ph ph-user mr-2"></i> Customers
                 </Link>
               </div>
             </div>
