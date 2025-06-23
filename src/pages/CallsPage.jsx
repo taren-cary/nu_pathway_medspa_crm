@@ -8,6 +8,7 @@ import { supabase } from '../lib/supabase';
 function CallsPage() {
   const [calls, setCalls] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [timeframe, setTimeframe] = useState('today');
   
   const fetchCalls = async () => {
@@ -57,13 +58,57 @@ function CallsPage() {
     
     setLoading(false);
   };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    
+    let timeRange = {};
+    const now = new Date();
+    
+    if (timeframe === 'today') {
+      timeRange = {
+        start: startOfDay(now).toISOString(),
+        end: endOfDay(now).toISOString(),
+      };
+    } else if (timeframe === 'week') {
+      timeRange = {
+        start: startOfWeek(now, { weekStartsOn: 1 }).toISOString(),
+        end: endOfWeek(now, { weekStartsOn: 1 }).toISOString(),
+      };
+    } else if (timeframe === 'month') {
+      timeRange = {
+        start: startOfMonth(now).toISOString(),
+        end: endOfMonth(now).toISOString(),
+      };
+    }
+    
+    const { data, error } = await supabase
+      .from('calls')
+      .select(`
+        *,
+        contacts (
+          id,
+          name,
+          phone,
+          email,
+          status
+        )
+      `)
+      .gte('call_time', timeRange.start)
+      .lte('call_time', timeRange.end)
+      .order('call_time', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching calls:', error);
+    } else {
+      setCalls(data || []);
+    }
+    
+    setRefreshing(false);
+  };
   
   useEffect(() => {
     fetchCalls();
-    
-    // Set up auto-refresh every 30 seconds
-    const interval = setInterval(fetchCalls, 30000);
-    return () => clearInterval(interval);
   }, [timeframe]);
   
   const updateFollowupStatus = async (id, status) => {
@@ -105,37 +150,48 @@ function CallsPage() {
       <div className="dashboard-header">
         <h1 className="dashboard-title">After-Hours Calls</h1>
         
-        <div className="flex space-x-2 bg-white p-1 rounded-lg shadow-sm border border-neutral-200">
+        <div className="flex items-center space-x-4">
           <button
-            onClick={() => setTimeframe('today')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              timeframe === 'today'
-                ? 'bg-primary-500 text-white'
-                : 'text-neutral-600 hover:bg-neutral-100'
-            }`}
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="flex items-center px-3 py-2 text-sm font-medium text-neutral-600 hover:text-primary-600 hover:bg-neutral-100 rounded-lg transition-colors disabled:opacity-50"
           >
-            Today
+            <i className={`ph ph-arrow-clockwise text-lg mr-1 ${refreshing ? 'animate-spin' : ''}`}></i>
+            Refresh
           </button>
-          <button
-            onClick={() => setTimeframe('week')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              timeframe === 'week'
-                ? 'bg-primary-500 text-white'
-                : 'text-neutral-600 hover:bg-neutral-100'
-            }`}
-          >
-            This Week
-          </button>
-          <button
-            onClick={() => setTimeframe('month')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              timeframe === 'month'
-                ? 'bg-primary-500 text-white'
-                : 'text-neutral-600 hover:bg-neutral-100'
-            }`}
-          >
-            This Month
-          </button>
+          
+          <div className="flex space-x-2 bg-white p-1 rounded-lg shadow-sm border border-neutral-200">
+            <button
+              onClick={() => setTimeframe('today')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                timeframe === 'today'
+                  ? 'bg-primary-500 text-white'
+                  : 'text-neutral-600 hover:bg-neutral-100'
+              }`}
+            >
+              Today
+            </button>
+            <button
+              onClick={() => setTimeframe('week')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                timeframe === 'week'
+                  ? 'bg-primary-500 text-white'
+                  : 'text-neutral-600 hover:bg-neutral-100'
+              }`}
+            >
+              This Week
+            </button>
+            <button
+              onClick={() => setTimeframe('month')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                timeframe === 'month'
+                  ? 'bg-primary-500 text-white'
+                  : 'text-neutral-600 hover:bg-neutral-100'
+              }`}
+            >
+              This Month
+            </button>
+          </div>
         </div>
       </div>
       

@@ -7,6 +7,7 @@ import { supabase } from '../lib/supabase';
 function ContactsPage() {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [statusFilter, setStatusFilter] = useState('all');
   
   const fetchContacts = async () => {
@@ -31,13 +32,32 @@ function ContactsPage() {
     
     setLoading(false);
   };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    
+    let query = supabase
+      .from('contacts')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (statusFilter !== 'all') {
+      query = query.eq('status', statusFilter);
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error('Error fetching contacts:', error);
+    } else {
+      setContacts(data || []);
+    }
+    
+    setRefreshing(false);
+  };
   
   useEffect(() => {
     fetchContacts();
-    
-    // Set up auto-refresh every 30 seconds
-    const interval = setInterval(fetchContacts, 30000);
-    return () => clearInterval(interval);
   }, [statusFilter]);
   
   const updateContactStatus = async (id, status) => {
@@ -81,47 +101,58 @@ function ContactsPage() {
       <div className="dashboard-header">
         <h1 className="dashboard-title">Contacts</h1>
         
-        <div className="flex space-x-2 bg-white p-1 rounded-lg shadow-sm border border-neutral-200">
+        <div className="flex items-center space-x-4">
           <button
-            onClick={() => setStatusFilter('all')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              statusFilter === 'all'
-                ? 'bg-primary-500 text-white'
-                : 'text-neutral-600 hover:bg-neutral-100'
-            }`}
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="flex items-center px-3 py-2 text-sm font-medium text-neutral-600 hover:text-primary-600 hover:bg-neutral-100 rounded-lg transition-colors disabled:opacity-50"
           >
-            All
+            <i className={`ph ph-arrow-clockwise text-lg mr-1 ${refreshing ? 'animate-spin' : ''}`}></i>
+            Refresh
           </button>
-          <button
-            onClick={() => setStatusFilter('Needs Attention')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              statusFilter === 'Needs Attention'
-                ? 'bg-primary-500 text-white'
-                : 'text-neutral-600 hover:bg-neutral-100'
-            }`}
-          >
-            Needs Attention
-          </button>
-          <button
-            onClick={() => setStatusFilter('Contacted')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              statusFilter === 'Contacted'
-                ? 'bg-primary-500 text-white'
-                : 'text-neutral-600 hover:bg-neutral-100'
-            }`}
-          >
-            Contacted
-          </button>
-          <button
-            onClick={() => setStatusFilter('Booked')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              statusFilter === 'Booked'
-                ? 'bg-primary-500 text-white'
-                : 'text-neutral-600 hover:bg-neutral-100'
-            }`}
-          >
-            Booked
-          </button>
+          
+          <div className="flex space-x-2 bg-white p-1 rounded-lg shadow-sm border border-neutral-200">
+            <button
+              onClick={() => setStatusFilter('all')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                statusFilter === 'all'
+                  ? 'bg-primary-500 text-white'
+                  : 'text-neutral-600 hover:bg-neutral-100'
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setStatusFilter('Needs Attention')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                statusFilter === 'Needs Attention'
+                  ? 'bg-primary-500 text-white'
+                  : 'text-neutral-600 hover:bg-neutral-100'
+              }`}
+            >
+              Needs Attention
+            </button>
+            <button
+              onClick={() => setStatusFilter('Contacted')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                statusFilter === 'Contacted'
+                  ? 'bg-primary-500 text-white'
+                  : 'text-neutral-600 hover:bg-neutral-100'
+              }`}
+            >
+              Contacted
+            </button>
+            <button
+              onClick={() => setStatusFilter('Booked')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                statusFilter === 'Booked'
+                  ? 'bg-primary-500 text-white'
+                  : 'text-neutral-600 hover:bg-neutral-100'
+              }`}
+            >
+              Booked
+            </button>
+          </div>
         </div>
       </div>
       
