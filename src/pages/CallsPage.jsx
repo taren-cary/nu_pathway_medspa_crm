@@ -111,24 +111,6 @@ function CallsPage() {
     fetchCalls();
   }, [timeframe]);
   
-  const updateFollowupStatus = async (id, status) => {
-    const needsFollowup = status !== 'Completed' && status !== 'Booked';
-    
-    const { error } = await supabase
-      .from('calls')
-      .update({ 
-        followup_status: status,
-        needs_followup: needsFollowup
-      })
-      .eq('id', id);
-    
-    if (error) {
-      console.error('Error updating call status:', error);
-    } else {
-      fetchCalls();
-    }
-  };
-  
   const formatDateTime = (timestamp) => {
     return formatInTimeZone(
       new Date(timestamp),
@@ -148,7 +130,7 @@ function CallsPage() {
   return (
     <div className="animate-fade-in">
       <div className="dashboard-header">
-        <h1 className="dashboard-title">After-Hours Calls</h1>
+        <h1 className="dashboard-title">Call History</h1>
         
         <div className="flex items-center space-x-4">
           <button
@@ -218,15 +200,13 @@ function CallsPage() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Phone</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Duration</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Contact</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider" colSpan="2">Details</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-200">
                 {calls.map((call) => (
                   <React.Fragment key={call.id}>
-                    <tr className={call.needs_followup ? 'bg-yellow-50' : ''}>
+                    <tr>
                       <td className="px-4 py-3 whitespace-nowrap">{formatDateTime(call.call_time)}</td>
                       <td className="px-4 py-3 whitespace-nowrap">{call.phone_number}</td>
                       <td className="px-4 py-3 whitespace-nowrap">{formatDuration(call.duration)}</td>
@@ -241,16 +221,6 @@ function CallsPage() {
                         ) : (
                           <span className="text-neutral-400">No contact</span>
                         )}
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className={`px-2 py-1 rounded text-sm ${
-                          call.followup_status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                          call.followup_status === 'Completed' ? 'bg-green-100 text-green-800' :
-                          call.followup_status === 'Booked' ? 'bg-blue-100 text-blue-800' :
-                          'bg-neutral-100 text-neutral-800'
-                        }`}>
-                          {call.followup_status}
-                        </span>
                       </td>
                       <td className="px-4 py-3">
                         <button 
@@ -274,20 +244,9 @@ function CallsPage() {
                           View Transcript
                         </button>
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <select
-                          className="border rounded px-2 py-1"
-                          value={call.followup_status}
-                          onChange={(e) => updateFollowupStatus(call.id, e.target.value)}
-                        >
-                          <option value="Pending">Pending</option>
-                          <option value="Completed">Completed</option>
-                          <option value="Booked">Booked</option>
-                        </select>
-                      </td>
                     </tr>
                     <tr id={`summary-${call.id}`} className="hidden bg-gray-50">
-                      <td colSpan="8" className="px-6 py-4">
+                      <td colSpan="6" className="px-6 py-4">
                         <div className="text-sm">
                           <h4 className="font-medium text-gray-900 mb-2">Call Summary</h4>
                           <p className="text-gray-700 whitespace-pre-wrap">{call.summary || "No summary available"}</p>
@@ -295,7 +254,7 @@ function CallsPage() {
                       </td>
                     </tr>
                     <tr id={`transcript-${call.id}`} className="hidden bg-gray-50">
-                      <td colSpan="8" className="px-6 py-4">
+                      <td colSpan="6" className="px-6 py-4">
                         <div className="text-sm">
                           <h4 className="font-medium text-gray-900 mb-2">Call Transcript</h4>
                           <pre className="text-gray-700 whitespace-pre-wrap overflow-x-auto max-h-96 overflow-y-auto">{call.transcript || "No transcript available"}</pre>

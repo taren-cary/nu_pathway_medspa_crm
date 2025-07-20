@@ -8,7 +8,7 @@ function ContactsPage() {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('Needs Attention'); // Changed from 'all'
   
   const fetchContacts = async () => {
     setLoading(true);

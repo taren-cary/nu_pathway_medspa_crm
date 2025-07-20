@@ -18,16 +18,6 @@ function Layout() {
               </div>
               <div className="ml-8 flex space-x-8">
                 <Link
-                  to="/calls"
-                  className={`nav-link ${
-                    location.pathname === '/' || location.pathname === '/calls'
-                      ? 'text-primary-600 after:w-full'
-                      : ''
-                  }`}
-                >
-                  <i className="ph ph-phone mr-2"></i> Calls
-                </Link>
-                <Link
                   to="/contacts"
                   className={`nav-link ${
                     location.pathname.includes('/contacts')
@@ -38,14 +28,14 @@ function Layout() {
                   <i className="ph ph-user mr-2"></i> Contacts
                 </Link>
                 <Link
-                  to="/appointments"
+                  to="/calls"
                   className={`nav-link ${
-                    location.pathname === '/appointments'
+                    location.pathname === '/' || location.pathname === '/calls'
                       ? 'text-primary-600 after:w-full'
                       : ''
                   }`}
                 >
-                  <i className="ph ph-calendar-blank mr-2"></i> Appointments
+                  <i className="ph ph-phone mr-2"></i> Calls
                 </Link>
               </div>
             </div>

@@ -10,6 +10,7 @@ function ContactDetailPage() {
   const [calls, setCalls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [notes, setNotes] = useState('');
+  const [expandedCalls, setExpandedCalls] = useState(new Set());
   
   useEffect(() => {
     const fetchContactData = async () => {
@@ -105,6 +106,28 @@ function ContactDetailPage() {
         return 'bg-neutral-100 text-neutral-800';
     }
   };
+
+  const toggleCallExpansion = (callId) => {
+    const newExpanded = new Set(expandedCalls);
+    if (newExpanded.has(callId)) {
+      newExpanded.delete(callId);
+    } else {
+      newExpanded.add(callId);
+    }
+    setExpandedCalls(newExpanded);
+  };
+
+  const expandAllCalls = () => {
+    const allCallIds = new Set(calls.map(call => call.id));
+    setExpandedCalls(allCallIds);
+  };
+
+  const collapseAllCalls = () => {
+    setExpandedCalls(new Set());
+  };
+
+  // Get most recent call data
+  const mostRecentCall = calls.length > 0 ? calls[0] : null;
   
   if (loading) {
     return (
@@ -168,12 +191,13 @@ function ContactDetailPage() {
               </div>
             )}
             
-            {contact.service_interest && (
+            {mostRecentCall?.service_interest && (
               <div className="flex items-center p-3 bg-neutral-50 rounded-lg">
                 <i className="ph ph-sparkle text-primary-500 text-lg mr-3"></i>
                 <div>
                   <p className="text-xs text-neutral-500 font-medium">Service Interest</p>
-                  <p className="text-neutral-900">{contact.service_interest}</p>
+                  <p className="text-neutral-900">{mostRecentCall.service_interest}</p>
+                  <p className="text-xs text-neutral-400">From call on {formatDateTime(mostRecentCall.call_time)}</p>
                 </div>
               </div>
             )}
@@ -221,7 +245,23 @@ function ContactDetailPage() {
         {/* Call History */}
         <div className="lg:col-span-2">
           <div className="card">
-            <h2 className="text-xl font-semibold text-neutral-900 mb-4">Call History</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-neutral-900">Call History ({calls.length} calls)</h2>
+              <div className="flex space-x-2">
+                <button
+                  onClick={expandAllCalls}
+                  className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                >
+                  Expand All
+                </button>
+                <button
+                  onClick={collapseAllCalls}
+                  className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                >
+                  Collapse All
+                </button>
+              </div>
+            </div>
             
             {calls.length === 0 ? (
               <div className="text-center py-8">
@@ -229,54 +269,44 @@ function ContactDetailPage() {
                 <p className="text-neutral-500">No call history available for this contact.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-neutral-200">
-                  <thead className="bg-neutral-50">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Time</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Duration</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Status</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Summary</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Transcript</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-200">
-                    {calls.map((call) => (
-                      <tr key={call.id} className={call.needs_followup ? 'bg-yellow-50' : ''}>
-                        <td className="px-4 py-3">{formatDateTime(call.call_time)}</td>
-                        <td className="px-4 py-3">{formatDuration(call.duration)}</td>
-                        <td className="px-4 py-3">
-                          <span className={`px-2 py-1 rounded text-sm ${
-                            call.followup_status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                            call.followup_status === 'Completed' ? 'bg-green-100 text-green-800' :
-                            call.followup_status === 'Booked' ? 'bg-blue-100 text-blue-800' :
-                            'bg-neutral-100 text-neutral-800'
-                          }`}>
-                            {call.followup_status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="relative group">
-                            <button className="text-blue-500 hover:underline">View Summary</button>
-                            <div className="absolute left-0 top-full mt-2 w-96 bg-white shadow-lg rounded p-4 z-10 hidden group-hover:block">
+              <div className="space-y-4">
+                {calls.map((call) => (
+                  <div key={call.id} className="border rounded-lg overflow-hidden">
+                    <div className="bg-gray-50 p-4 flex justify-between items-center">
+                      <div className="flex items-center space-x-4">
+                        <div>
+                          <p className="font-medium text-gray-900">{formatDateTime(call.call_time)}</p>
+                          <p className="text-sm text-gray-500">Duration: {formatDuration(call.duration)}</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => toggleCallExpansion(call.id)}
+                        className="text-blue-500 hover:text-blue-700 transition-colors"
+                      >
+                        <i className={`ph ${expandedCalls.has(call.id) ? 'ph-minus' : 'ph-plus'} text-lg`}></i>
+                      </button>
+                    </div>
+                    
+                    {expandedCalls.has(call.id) && (
+                      <div className="p-4 border-t bg-white">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <h4 className="font-medium text-gray-900 mb-2">Call Summary</h4>
+                            <div className="bg-gray-50 p-3 rounded text-sm text-gray-700 whitespace-pre-wrap max-h-48 overflow-y-auto">
                               {call.summary || "No summary available"}
                             </div>
                           </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="relative group">
-                            <button className="text-blue-500 hover:underline">View Transcript</button>
-                            <div className="absolute left-0 top-full mt-2 w-96 bg-white shadow-lg rounded p-4 z-10 hidden group-hover:block max-h-96 overflow-y-auto">
-                              <pre className="whitespace-pre-wrap text-sm">
-                                {call.transcript || "No transcript available"}
-                              </pre>
+                          <div>
+                            <h4 className="font-medium text-gray-900 mb-2">Call Transcript</h4>
+                            <div className="bg-gray-50 p-3 rounded text-sm text-gray-700 whitespace-pre-wrap max-h-48 overflow-y-auto">
+                              <pre className="text-sm">{call.transcript || "No transcript available"}</pre>
                             </div>
                           </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </div>
