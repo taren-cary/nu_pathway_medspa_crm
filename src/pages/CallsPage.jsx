@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { supabase } from '../lib/supabase';
+import AudioPlayer from '../components/AudioPlayer';
 
 function CallsPage() {
   const [calls, setCalls] = useState([]);
@@ -275,6 +276,7 @@ function CallsPage() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Phone</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Duration</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Contact</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Recording</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider" colSpan="2">Details</th>
                 </tr>
               </thead>
@@ -296,6 +298,9 @@ function CallsPage() {
                         ) : (
                           <span className="text-neutral-400">No contact</span>
                         )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <AudioPlayer recordingUrl={call.recording_url} className="w-64" />
                       </td>
                       <td className="px-4 py-3">
                         <button 
@@ -321,7 +326,7 @@ function CallsPage() {
                       </td>
                     </tr>
                     <tr id={`summary-${call.id}`} className="hidden bg-gray-50">
-                      <td colSpan="6" className="px-6 py-4">
+                      <td colSpan="7" className="px-6 py-4">
                         <div className="text-sm">
                           <h4 className="font-medium text-gray-900 mb-2">Call Summary</h4>
                           <p className="text-gray-700 whitespace-pre-wrap">{call.summary || "No summary available"}</p>
@@ -329,7 +334,7 @@ function CallsPage() {
                       </td>
                     </tr>
                     <tr id={`transcript-${call.id}`} className="hidden bg-gray-50">
-                      <td colSpan="6" className="px-6 py-4">
+                      <td colSpan="7" className="px-6 py-4">
                         <div className="text-sm">
                           <h4 className="font-medium text-gray-900 mb-2">Call Transcript</h4>
                           <pre className="text-gray-700 whitespace-pre-wrap overflow-x-auto max-h-96 overflow-y-auto">{call.transcript || "No transcript available"}</pre>

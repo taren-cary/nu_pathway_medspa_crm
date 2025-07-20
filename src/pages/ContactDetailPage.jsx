@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { supabase } from '../lib/supabase';
+import AudioPlayer from '../components/AudioPlayer';
 
 function ContactDetailPage() {
   const { id } = useParams();
@@ -303,6 +304,12 @@ function ContactDetailPage() {
                             </div>
                           </div>
                         </div>
+                        {call.recording_url && (
+                          <div className="mt-4">
+                            <h4 className="font-medium text-gray-900 mb-2">Call Recording</h4>
+                            <AudioPlayer recordingUrl={call.recording_url} className="w-full" />
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
